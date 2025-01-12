@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Dartboard Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .btn {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .btn.multiplayer {
+            background-color: #2196F3;
+        }
+        .btn.multiplayer:hover {
+            background-color: #1976D2;
+        }
+        .btn.single-player {
+            background-color: #4CAF50;
+        }
+        .game-modes {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .game-modes.active {
+            display: block;
+        }
+        .mode-title {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .auth-buttons {
+            margin-bottom: 30px;
+        }
+        .welcome-message {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .flash {
+            margin: 10px auto;
+            padding: 10px;
+            max-width: 500px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .flash.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .flash.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Dartboard Game</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if session.get('username') %}
+            <p class="welcome-message">Welcome, {{ session['username'] }}!</p>
+            
+            <div class="mode-selection">
+                <button class="btn single-player" onclick="window.location.href='/game'">Single Player</button>
+                <button class="btn multiplayer" onclick="window.location.href='/rooms'">Multiplayer</button>
+                <button class="btn" onclick="window.location.href='/logout'" style="background-color: #f44336;">Logout</button>
+            </div>
+        {% else %}
+            <p class="welcome-message">Please log in or register to play</p>
+            
+            <div class="auth-buttons">
+                <button class="btn" onclick="window.location.href='/login'">Login</button>
+                <button class="btn" onclick="window.location.href='/register'">Register</button>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
