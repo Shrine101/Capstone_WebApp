@@ -5,23 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Game Room</title>
     <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --container-bg: white;
+            --shadow-color: rgba(0,0,0,0.1);
+            --info-bg: #f8f9fa;
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --container-bg: #2d2d2d;
+            --shadow-color: rgba(255,255,255,0.1);
+            --heading-color: #7dd3fc;
+            --info-bg: #1e1e1e;
+        }
         body {
             font-family: Arial, sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
 
         .container {
-            background-color: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: var(--container-bg);
+            box-shadow 0 2px 5px var(--shadow-color);
         }
 
         .form-group {
             margin-bottom: 20px;
+            color: var(--text-color);
         }
 
         label {
@@ -38,6 +56,9 @@
             border-radius: 4px;
             font-size: 16px;
             box-sizing: border-box;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            border-color: var(--shadow-color);
         }
 
         .radio-group {
@@ -90,10 +111,33 @@
             color: #155724;
             border: 1px solid #c8e6c9;
         }
+        .theme-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .theme-switch input {
+            display: none;
+        }
+        .theme-switch label {
+            cursor: pointer;
+            padding: 8px 16px;
+            background: var(--container-bg);
+            border-radius: 20px;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="theme-switch">
+            <input type="checkbox" id="theme-toggle">
+            <label for="theme-toggle">Light</label>
+        </div>
         <h1>Create Game Room</h1>
 
         {% with messages = get_flashed_messages(with_categories=True) %}
@@ -147,6 +191,27 @@
     </div>
 
     <script>
+        const toggleSwitch = document.getElementById('theme-toggle');
+        const themeLabel = toggleSwitch.nextElementSibling;
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            toggleSwitch.checked = true;
+            themeLabel.textContent = 'Dark';
+        }
+
+        toggleSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeLabel.textContent = 'Dark';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                themeLabel.textContent = 'Light';
+            }
+        });
+        
         function togglePasswordField() {
             const passwordField = document.getElementById('passwordField');
             const passwordInput = document.getElementById('roomPassword');

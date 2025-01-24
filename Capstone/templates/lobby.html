@@ -6,25 +6,43 @@
     <title>Game Lobby</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --container-bg: white;
+            --shadow-color: rgba(0,0,0,0.1);
+            --info-bg: #f8f9fa;
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --container-bg: #2d2d2d;
+            --shadow-color: rgba(255,255,255,0.1);
+            --heading-color: #7dd3fc;
+            --info-bg: #1e1e1e;
+        }
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
 
         .lobby-container {
-            background-color: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: var(--container-bg);
+            box-shadow 0 2px 5px var(--shadow-color);
         }
 
         .room-info {
             margin-bottom: 20px;
             padding: 15px;
-            background-color: #f8f9fa;
+            background-color: var(--info-bg);
+            color: var(--text-color);
             border-radius: 4px;
         }
 
@@ -108,10 +126,33 @@
             color: #0c5460;
             border: 1px solid #bee5eb;
         }
+        .theme-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .theme-switch input {
+            display: none;
+        }
+        .theme-switch label {
+            cursor: pointer;
+            padding: 8px 16px;
+            background: var(--container-bg);
+            border-radius: 20px;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
     </style>
 </head>
 <body>
     <div class="lobby-container">
+        <div class="theme-switch">
+            <input type="checkbox" id="theme-toggle">
+            <label for="theme-toggle">Light</label>
+        </div>
         <div class="room-info">
             <h2>Room: <span id="roomName">{{ room_data.name }}</span></h2>
             <div>Game Type: <span id="gameType">{{ room_data.game_type }}</span></div>
@@ -134,6 +175,27 @@
     </div>
 
     <script>
+        const toggleSwitch = document.getElementById('theme-toggle');
+        const themeLabel = toggleSwitch.nextElementSibling;
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            toggleSwitch.checked = true;
+            themeLabel.textContent = 'Dark';
+        }
+
+        toggleSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeLabel.textContent = 'Dark';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                themeLabel.textContent = 'Light';
+            }
+        });
+        
         let socket = io();
         const isHost = {{ 'true' if session.get('user_id') == room_data.created_by else 'false' }};
         const roomId = {{ room_data.id }};
