@@ -1,182 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Dartboard Game</title>
+    <title>Dart Game Scoreboard</title>
     <style>
-        :root {
-            --bg-color: #f5f5f5;
-            --text-color: #333;
-            --container-bg: white;
-            --shadow-color: rgba(0,0,0,0.1);
-            --info-bg: #f8f9fa;
-        }
-        
-        [data-theme="dark"] {
-            --bg-color: #1a1a1a;
-            --text-color: #ffffff;
-            --container-bg: #2d2d2d;
-            --shadow-color: rgba(255,255,255,0.1);
-            --heading-color: #7dd3fc;
-            --info-bg: #1e1e1e;
-        }
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-        h1 {
-            color: var(--heading-color, var(--text-color));
-            margin-bottom: 30px;
+            margin: 20px;
+            background-color: #f5f5f5;
         }
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
+        }
+        .game-info {
+            background: white;
             padding: 20px;
-            background-color: var(--container-bg);
-            box-shadow 0 2px 5px var(--shadow-color);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .btn {
-            margin: 10px;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .btn:hover {
-            background-color: #45a049;
-        }
-        .btn.multiplayer {
-            background-color: #2196F3;
-        }
-        .btn.multiplayer:hover {
-            background-color: #1976D2;
-        }
-        .btn.single-player {
-            background-color: #4CAF50;
-        }
-        .game-modes {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .game-modes.active {
-            display: block;
-        }
-        .mode-title {
-            color: #333;
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
             margin-bottom: 20px;
         }
-        .auth-buttons {
-            margin-bottom: 30px;
+        .player-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .welcome-message {
-            font-size: 1.2em;
-            color: var(--heading-color, var(--text-color));
-            margin-bottom: 20px;
+        .player-card.current {
+            border: 2px solid #4CAF50;
         }
-        .flash {
-            margin: 10px auto;
-            padding: 10px;
-            max-width: 500px;
-            border-radius: 5px;
-            text-align: center;
+        .rounds-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .flash.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        .rounds-table th, .rounds-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
-        .flash.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .rounds-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
         }
-        .theme-switch {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2196F3;
         }
-        .theme-switch input {
-            display: none;
-        }
-        .theme-switch label {
-            cursor: pointer;
-            padding: 8px 16px;
-            background: var(--container-bg);
-            border-radius: 20px;
-            display: inline-block;
-            min-width: 60px;
-            text-align: center;
-            box-shadow: 0 2px 5px var(--shadow-color);
+        .current-player {
+            color: #4CAF50;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="theme-switch">
-            <input type="checkbox" id="theme-toggle">
-            <label for="theme-toggle">Light</label>
+        <div class="game-info">
+            <h2 id="gameName">Loading game...</h2>
+            <p>Current Player: <span id="currentPlayer" class="current-player">-</span></p>
         </div>
-        <h1>Welcome to the Dartboard Game</h1>
-        
-        {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
 
-        {% if session.get('username') %}
-            <p class="welcome-message">Welcome, {{ session['username'] }}!</p>
-            
-            <div class="mode-selection">
-                <button class="btn single-player" onclick="window.location.href='/game'">Single Player</button>
-                <button class="btn multiplayer" onclick="window.location.href='/rooms'">Multiplayer</button>
-                <button class="btn" onclick="window.location.href='/logout'" style="background-color: #f44336;">Logout</button>
-            </div>
-        {% else %}
-            <p class="welcome-message">Please log in or register to play</p>
-            
-            <div class="auth-buttons">
-                <button class="btn" onclick="window.location.href='/login'">Login</button>
-                <button class="btn" onclick="window.location.href='/register'">Register</button>
-            </div>
-        {% endif %}
+        <div class="players-grid" id="playersGrid">
+            <!-- Players will be inserted here -->
+        </div>
+
+        <h3>Rounds History</h3>
+        <table class="rounds-table">
+            <thead>
+                <tr>
+                    <th>Round</th>
+                    <th>Player</th>
+                    <th>First</th>
+                    <th>Second</th>
+                    <th>Third</th>
+                    <th>Remaining</th>
+                </tr>
+            </thead>
+            <tbody id="roundsBody">
+                <!-- Rounds will be inserted here -->
+            </tbody>
+        </table>
     </div>
-    <script>
-        const toggleSwitch = document.getElementById('theme-toggle');
-        const themeLabel = toggleSwitch.nextElementSibling;
 
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            toggleSwitch.checked = true;
-            themeLabel.textContent = 'Dark';
+    <script>
+        const eventSource = new EventSource('/stream');
+        
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            updateDisplay(data);
+        };
+
+        eventSource.onerror = function(error) {
+            console.error('EventSource error:', error);
+            eventSource.close();
+        };
+
+        function updateDisplay(data) {
+            // Update game info
+            document.getElementById('gameName').textContent = data.game.game_name;
+            document.getElementById('currentPlayer').textContent = data.game.current_player_name;
+
+            // Update players
+            const playersGrid = document.getElementById('playersGrid');
+            playersGrid.innerHTML = '';
+            
+            data.players.forEach(player => {
+                const playerCard = document.createElement('div');
+                playerCard.className = `player-card ${player.player_id === data.game.current_player_id ? 'current' : ''}`;
+                playerCard.innerHTML = `
+                    <h3>${player.player_name}</h3>
+                    <div class="score">${player.current_score}</div>
+                    <p>Rounds played: ${player.rounds_played}</p>
+                `;
+                playersGrid.appendChild(playerCard);
+            });
+
+            // Update rounds
+            const roundsBody = document.getElementById('roundsBody');
+            roundsBody.innerHTML = '';
+            
+            data.rounds.forEach(round => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${round.round_number}</td>
+                    <td>${round.player_name}</td>
+                    <td>${round.first_throw}</td>
+                    <td>${round.second_throw}</td>
+                    <td>${round.third_throw}</td>
+                    <td>${round.remaining_score}</td>
+                `;
+                roundsBody.appendChild(tr);
+            });
         }
 
-        toggleSwitch.addEventListener('change', function() {
-            if (this.checked) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-                themeLabel.textContent = 'Dark';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-                themeLabel.textContent = 'Light';
-            }
-        });
+        // Initial load
+        fetch('/game-data')
+            .then(response => response.json())
+            .then(data => {
+                if (!data.error) {
+                    updateDisplay(data);
+                }
+            })
+            .catch(error => console.error('Error:', error));
     </script>
 </body>
 </html>
